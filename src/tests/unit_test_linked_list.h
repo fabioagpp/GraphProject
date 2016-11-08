@@ -1,6 +1,6 @@
 #include <iostream>
 #include <stdlib.h>
-#include "graph.h"
+#include "../graph.h"
 
 bool test_list_node_constructor(){
     list_node *l1 = new list_node(5);
@@ -12,19 +12,19 @@ bool test_list_node_constructor(){
     if(l1->next != l3){
         cout << "Error: l1->next does not match." << endl;
         return false;
-    }
+    }   
     if(l2->previous != l3){
         cout << "Error: l2->previous does not match." << endl;
         return false;
-    }
+    }   
     if(l3->next != l2){
         cout << "Error: l3->next does not match." << endl;
         return false;
-    }
+    }   
     if(l3->previous != l1){
         cout << "Error: l3->previous does not match." << endl;
         return false;
-    }
+    }   
     cout << "Test Successful" << endl;
     return true;
 }
@@ -33,18 +33,18 @@ bool test_list_node_destructor(){
     list_node *l1 = new list_node(5);
     list_node *l2 = new list_node(7);
     list_node *l3 = new list_node(6, l2, l1);
-    delete l3;
+    delete l3; 
 
     cout << "Testing the list_node's destructor... ";
 
     if(l1->next != l2){
         cout << "Error: l1->next does not match." << endl;
         return false;
-    }
+    }   
     if(l2->previous != l1){
         cout << "Error: l2->previous does not match." << endl;
         return false;
-    }
+    }   
     cout << "Test Successful" << endl;
     return true;
 }
@@ -187,7 +187,7 @@ bool test_linked_list_pop(){
         cout << "Error: return value does not match the one from the second pop." << endl;
         return false;
     }
-    
+
     pop_val = l->pop();
     pop_val = l->pop();
     if(l->head != NULL){
@@ -209,17 +209,3 @@ bool test_linked_list_pop(){
 }
 
 
-
-void execute_test(bool (*f) (void)){
-    if(f() == false)
-        exit(EXIT_FAILURE);
-}
-int main(){
-    execute_test(test_list_node_constructor);
-    execute_test(test_list_node_destructor);
-    execute_test(test_linked_list_push);
-    execute_test(test_linked_list_push_ordered);
-    execute_test(test_linked_list_push_back);
-    execute_test(test_linked_list_pop);
-    return 0;
-}

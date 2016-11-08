@@ -9,7 +9,7 @@ test_bench:
 	rm a.out
 
 test:
-	g++ $(FLAGS) unit_tests.cpp
+	g++ $(FLAGS) src/tests/unit_tests.cpp
 	./a.out || true
 	rm a.out
 clean:

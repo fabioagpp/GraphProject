@@ -1,15 +1,21 @@
+#ifndef GRAPH_H
+#define GRAPH_H
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <limits>
+#include <queue>
 #include "linked_list.h"
 
 using namespace std;
 
 class Graph{
     protected:
+        bool weighted;
         int size;
         class neighborsIter{
             public:
@@ -17,6 +23,7 @@ class Graph{
                 virtual int begin() = 0;
                 virtual int next() = 0;
                 virtual int previous() = 0;
+                virtual float get_weight() = 0;
         };
     public:
         int *degree;
@@ -30,19 +37,20 @@ class Graph{
             degree = new int[size];
             fill_n(degree, size, 0);
         }
-        virtual void add_edge(int head, int tail){
+        virtual void add_edge(int head, int tail, float weight = 1){
             degree[head-1]++;
             degree[tail-1]++;
         };
 
         neighborsIter *iterator;
 
-        Graph(){
+        Graph(bool weighted = false){
             degree = NULL;
             latest_search_parent = NULL;
             latest_search_depth = NULL;
             components = NULL;
             iterator = NULL;
+            this->weighted = weighted;
         }
 
         virtual ~Graph(){
@@ -62,8 +70,10 @@ class Graph{
         void read_file(string filename){
             string s1;
             string s2;
+            string s3;
             int i1;
             int i2;
+            float weight;
             string line;
 
             ifstream input(filename.c_str());
@@ -77,7 +87,13 @@ class Graph{
                 sscanf(s1.c_str(), "%d", &i1);
                 getline(line_stream, s2, ' ');
                 sscanf(s2.c_str(), "%d", &i2);
-                add_edge(i1, i2);
+                if(weighted){
+                    getline(line_stream, s3, ' ');
+                    sscanf(s3.c_str(), "%f", &weight);
+                    add_edge(i1, i2, weight);
+                }else{
+                    add_edge(i1, i2);
+                }
             }
             input.close();
         }
@@ -377,7 +393,7 @@ class AdjacencyMatrixGraph: public Graph{
                 
                 int next(){
                     int i = current;
-                    while(i <= last and outer->neighbors[vertex-1][i] == false){
+                    while(i <= last and outer->neighbors[vertex-1][i] == 0){
                         i++;
                     }
 
@@ -387,7 +403,7 @@ class AdjacencyMatrixGraph: public Graph{
                 
                 int previous(){
                     int i = current - 2;
-                    while(i >= first and outer->neighbors[vertex-1][i] == false){
+                    while(i >= first and outer->neighbors[vertex-1][i] == 0){
                         i--;
                     }
 
@@ -395,30 +411,34 @@ class AdjacencyMatrixGraph: public Graph{
                     return current;
 
                 }
+
+                float get_weight(){
+                    return outer->neighbors[vertex - 1][current - 1];
+                }
         };
 
     public:
-        bool **neighbors;
+        float **neighbors;
 
         void set_graph_size(int size){
             Graph::set_graph_size(size);
-            neighbors = new bool*[size];
+            neighbors = new float*[size];
             for(int i = 0; i < size; i++){
-                neighbors[i] = new bool[size];
+                neighbors[i] = new float[size];
                 for(int j = 0; j < size; j++){
                     neighbors[i][j] = 0;
                 }
             }
         }
 
-        void add_edge(int head, int tail){
+        void add_edge(int head, int tail, float weight = 1){
             Graph::add_edge(head, tail);
-            neighbors[head-1][tail-1] = true;
-            neighbors[tail-1][head-1] = true;
+            neighbors[head-1][tail-1] = weight;
+            neighbors[tail-1][head-1] = weight;
         }
 
         bool is_neighbor(int head, int tail){
-            return neighbors[head-1][tail-1];
+            return neighbors[head-1][tail-1] != 0;
         }
 
         void iterate_neighbors(int vertex, bool reverse=false){
@@ -426,6 +446,9 @@ class AdjacencyMatrixGraph: public Graph{
                 delete iterator;
             }
             iterator = new neighborsIter(this, vertex, reverse);
+        }
+
+        AdjacencyMatrixGraph(bool weighted = false) : Graph(weighted){
         }
 
         ~AdjacencyMatrixGraph(){
@@ -483,6 +506,10 @@ class AdjacencyListGraph: public Graph{
                     else
                         return 0;
                 }
+
+                float get_weight(){
+                    return current->weight;
+                }
         };
     public:
         Linked_List *neighbors;
@@ -492,10 +519,10 @@ class AdjacencyListGraph: public Graph{
             }
             iterator = new neighborsIter(this, vertex, reverse);
         }
-        void add_edge(int head, int tail){
+        void add_edge(int head, int tail, float weight = 1){
             Graph::add_edge(head, tail);
-            neighbors[head-1].push_ordered(tail);
-            neighbors[tail-1].push_ordered(head);
+            neighbors[head-1].push_ordered(tail, weight);
+            neighbors[tail-1].push_ordered(head, weight);
         }
         bool is_neighbor(int head, int tail){
             return neighbors[head-1].find(tail) != NULL;
@@ -506,8 +533,12 @@ class AdjacencyListGraph: public Graph{
             neighbors = new Linked_List[size];
         }
 
+        AdjacencyListGraph(bool weighted = false) : Graph(weighted){
+        }
 /*        ~AdjacencyListGraph(){
             if(neighbors != NULL)
                 delete neighbors;
         }*/
 };
+
+#endif /* GRAPH_H */

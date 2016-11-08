@@ -4,11 +4,14 @@ using namespace std;
 class list_node {
     public:
         int edge;
+        float weight;
         list_node *next;
         list_node *previous;
 
-        list_node(int edge, list_node *next = NULL, list_node *previous = NULL){
+        list_node(int edge, list_node *next = NULL,
+                list_node *previous = NULL, float weight = 1){
             this->edge = edge;
+            this->weight = weight;
             this->next = next;
             this->previous = previous;
 
@@ -43,18 +46,18 @@ class Linked_List{
             }
         }
 
-        void push(int edge){
+        void push(int edge, float weight = 1){
             if(head == NULL){
-                head = new list_node(edge);
+                head = new list_node(edge, NULL, NULL, weight);
                 tail = this->head;
             }else{
-                head = new list_node(edge, head);
+                head = new list_node(edge, head, NULL, weight);
             }
         }
 
-        void push_ordered(int edge){
+        void push_ordered(int edge, float weight = 1){
             if(head == NULL or head->edge > edge){
-                push(edge);
+                push(edge, weight);
                 return;
             }
             list_node *before = head;
@@ -65,18 +68,18 @@ class Linked_List{
                 after = after->next;
             }
 
-            new list_node(edge, after, before);
+            new list_node(edge, after, before, weight);
 
             if(before == tail){
                 tail = tail->next;
             }
         }
 
-        void push_back(int edge){
+        void push_back(int edge, float weight = 1){
             if(tail == NULL){
-                push(edge);
+                push(edge, weight);
             }else{
-                tail = new list_node(edge, NULL, tail);
+                tail = new list_node(edge, NULL, tail, weight);
             }
         }
 
@@ -117,6 +120,8 @@ class Linked_List{
         void delete_node(list_node *l){
             if(l == head)
                 head = l->next;
+            if(l == tail)
+                tail = l->previous;
             delete l;
         }
 };

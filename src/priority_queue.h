@@ -46,10 +46,6 @@ class Priority_Queue{
             return queue[get_right_child_index(id)];
         }
 
-        float get_weight(int id){
-            return queue[access[id]]->weight;
-        }
-
         void heapify_up(int id){
             heap_node *parent = get_parent(id);
             if(parent != NULL and get_weight(id) < parent->weight){
@@ -118,6 +114,10 @@ class Priority_Queue{
         }
 
         heap_node *pop(){
+            if(tail == 0){
+                return NULL;
+            }
+
             heap_node *pop_target = queue[1];
 
             if(pop_target != queue[tail]){
@@ -140,6 +140,10 @@ class Priority_Queue{
 
             heapify_up(id);
             heapify_down(id);
+        }
+
+        float get_weight(int id){
+            return queue[access[id]]->weight;
         }
 
         ~Priority_Queue(){

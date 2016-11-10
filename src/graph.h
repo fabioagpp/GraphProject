@@ -29,7 +29,7 @@ class Graph{
     public:
         int *degree;
         int *latest_search_parent;
-        int *latest_search_depth;
+        float *latest_search_depth;
         vector<vector<int> > *components;
         virtual void iterate_neighbors(int vertex, bool reverse=false) = 0;
         virtual bool is_neighbor(int head, int tail) = 0;
@@ -149,7 +149,7 @@ class Graph{
 
             latest_search_parent = new int[size];
             fill_n(latest_search_parent, size, -1); 
-            latest_search_depth = new int[size];
+            latest_search_depth = new float[size];
             fill_n(latest_search_depth, size, -1); 
 
 
@@ -158,7 +158,7 @@ class Graph{
         void generate_bfs_tree(int root, string filename="bfs.txt"){
             reset_search();
             int *parent = latest_search_parent;
-            int *depth = latest_search_depth;
+            float *depth = latest_search_depth;
             int u, v;
             Linked_List *l = new Linked_List;
 
@@ -188,7 +188,7 @@ class Graph{
 
         void write_search(string filename){
             int *parent = latest_search_parent;
-            int *depth = latest_search_depth;
+            float *depth = latest_search_depth;
 
             ofstream output(filename.c_str());
             output << "vertex,parent,depth\n";
@@ -205,7 +205,7 @@ class Graph{
             reset_search();
             bool markup[size] = {false};
             int *parent = latest_search_parent;
-            int *depth = latest_search_depth;
+            float *depth = latest_search_depth;
  
             int u, v;
             Linked_List *l = new Linked_List;
@@ -346,12 +346,65 @@ class Graph{
             diameter = 0;
             generate_bfs_tree(farthest_vertex);
             for(int i = 0; i < size; i++){
-                diameter = max(diameter, latest_search_depth[i]);
+                diameter = max(diameter, ((int)latest_search_depth[i]));
             }
 
             return diameter;
         }
 
+        // Verificar se existem arestas de custo < 0
+        void dijkstra(int root, string filename="dijkstra.txt"){
+            reset_search();
+            int *parent = latest_search_parent;
+            float *depth = latest_search_depth;
+            int u, v;
+            float v_distance;
+            heap_node *stub;
+
+            float infinite = numeric_limits<float>::max();
+
+            Priority_Queue *q = new Priority_Queue(size);
+            for(int i = 0; i < size; i++){
+                q->push(i+1, infinite);
+            }
+
+            parent[root-1] = 0;
+            q->update(root, 0);
+
+            bool ended = false;
+            while(not ended){
+                stub = q->pop();
+                if(stub == NULL){
+                    ended = true;
+                    break;
+                }
+                    
+                v = stub->id;
+                v_distance = stub->weight;
+                depth[v-1] = v_distance;
+                
+                iterate_neighbors(v);
+                for(u=iterator->begin(); u<=iterator->end(); u=iterator->next()){
+                    if(depth[u-1] >= 0){
+                        continue;
+                    }
+                    if(v_distance + iterator->get_weight() < q->get_weight(u)){
+                        parent[u-1] = v;
+                        q->update(u, v_distance + iterator->get_weight());
+                    }
+                }
+
+                delete stub;
+            }
+
+
+            if(filename != "void"){
+                write_search(filename);
+            }
+
+            
+            delete q;
+        }
 };
 
 class AdjacencyMatrixGraph: public Graph{

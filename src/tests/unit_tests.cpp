@@ -3,6 +3,9 @@
 #include "unit_test_linked_list.h"
 #include "unit_test_adjacency_list_graph.h"
 #include "unit_test_adjacency_matrix_graph.h"
+#include "unit_test_priority_queue.h"
+
+using namespace std;
 
 void execute_test(bool (*f) (void)){
     if(f() == false)
@@ -33,5 +36,11 @@ int main(){
     execute_test(test_adjacency_matrix_graph_get_weight_forward);
     execute_test(test_adjacency_matrix_graph_get_weight_backward);
 
+    // Heap Node tests
+    execute_test(test_heap_node_constructor);
+
+    // Priority Queue tests
+    execute_test(test_priority_queue_push);
+    execute_test(test_priority_queue_pop);
     return 0;
 }

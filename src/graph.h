@@ -10,6 +10,7 @@
 #include <limits>
 #include <queue>
 #include "linked_list.h"
+#include "priority_queue.h"
 
 using namespace std;
 

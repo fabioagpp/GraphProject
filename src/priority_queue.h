@@ -117,7 +117,7 @@ class Priority_Queue{
             if(tail == 0){
                 return NULL;
             }
-
+            
             heap_node *pop_target = queue[1];
 
             if(pop_target != queue[tail]){
@@ -158,7 +158,10 @@ class Priority_Queue{
         vector<int> *get_order(){
             vector<int> *v = new vector<int>;
             for(int i = 1; i <= tail; i++){
-                v->push_back(queue[i]->id);
+                if(queue[i] != NULL)
+                    v->push_back(queue[i]->id);
+                else
+                    v->push_back(0);
             }
 
             return v;

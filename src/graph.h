@@ -405,6 +405,57 @@ class Graph{
             
             delete q;
         }
+        
+        void mst(int root, string filename="mst.txt"){
+            reset_search();
+            int *parent = latest_search_parent;
+            float *depth = latest_search_depth;
+            int u, v;
+            float v_distance;
+            heap_node *stub;
+
+            float infinite = numeric_limits<float>::max();
+            Priority_Queue *q = new Priority_Queue(size);
+            for(int i = 0; i < size; i++){
+                q->push(i + 1, infinite);
+            }
+
+            parent[root-1] = 0;
+            depth[root-1] = 0;
+
+            q->update(root, 0);
+
+            bool ended = false;
+            while(not ended){
+                stub = q->pop();
+                if(stub == NULL || stub->weight == infinite){
+                    ended = true;
+                    break;
+                }
+                    
+                v = stub->id;
+                depth[v-1] = stub->weight;
+                
+                iterate_neighbors(v);
+                for(u=iterator->begin(); u<=iterator->end(); u=iterator->next()){
+                    if(depth[u-1] > -1){
+                        continue;
+                    }
+                    if(iterator->get_weight() < q->get_weight(u)){
+                        parent[u-1] = v;
+                        q->update(u, iterator->get_weight());
+                    }
+                }
+
+                delete stub;
+            }
+
+            if(filename != "void"){
+                write_search(filename);
+            }
+            
+            delete q;
+        }
 };
 
 class AdjacencyMatrixGraph: public Graph{

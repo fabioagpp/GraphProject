@@ -31,7 +31,11 @@ class Priority_Queue{
         }
 
         int get_left_child_index(int id){
-            return 2*access[id];
+            int index = 2*access[id];
+            if(index > tail){
+                return 0;
+            }
+            return index;
         }
         
         heap_node *get_left_child(int id){
@@ -39,7 +43,11 @@ class Priority_Queue{
         }
 
         int get_right_child_index(int id){
-            return 2*access[id] + 1;   
+            int index = 2*access[id] + 1;   
+            if(index > tail){
+                return 0;
+            }
+            return index;
         }
         
         heap_node *get_right_child(int id){
@@ -59,6 +67,7 @@ class Priority_Queue{
             if(left_child == NULL){
                 return;
             }
+
             heap_node *right_child = get_right_child(id);
             heap_node *min_child;
             if(right_child == NULL){
@@ -69,9 +78,6 @@ class Priority_Queue{
             }
 
             if(get_weight(id) > min_child->weight){
-                if(min_child == left_child){
-                }else{
-                }
                 swap(id, min_child->id);
                 heapify_down(id);
             }

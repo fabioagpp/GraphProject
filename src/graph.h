@@ -412,6 +412,7 @@ class Graph{
                     }
                 }
 
+
                 delete stub;
             }
 
@@ -424,7 +425,7 @@ class Graph{
             delete q;
         }
         
-        float mst(int root, string filename="mst.txt"){
+        float mst(int root=1, string filename="mst.txt"){
             reset_search();
             int *parent = latest_search_parent;
             float *depth = latest_search_depth;
@@ -483,9 +484,9 @@ class Graph{
             float infinite = numeric_limits<float>::max();
             float average_distance = 0;
             float valid_pairs = 0;
-            for(int i = 1; i <= size; i++){
+            for(int i = 1; i < size; i++){
                 dijkstra(i, "void");
-                for(int j = 0; j < size; j++){
+                for(int j = i; j < size; j++){
                     if(latest_search_depth[j] > 0 and latest_search_depth[j] != infinite){
                         valid_pairs++;
                         average_distance += latest_search_depth[j];
@@ -495,6 +496,7 @@ class Graph{
 
             return average_distance/valid_pairs;
         }
+
 };
 
 class AdjacencyMatrixGraph: public Graph{

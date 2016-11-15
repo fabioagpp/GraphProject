@@ -16,6 +16,7 @@ using namespace std;
 
 class Graph{
     protected:
+        bool has_negative_weight;
         bool weighted;
         int size;
         class neighborsIter{
@@ -37,10 +38,14 @@ class Graph{
             this->size = size;
             degree = new int[size];
             fill_n(degree, size, 0);
+            has_negative_weight = false;
         }
         virtual void add_edge(int head, int tail, float weight = 1){
             degree[head-1]++;
             degree[tail-1]++;
+            if(weight <= 0){
+                has_negative_weight = true;
+            }
         };
 
         neighborsIter *iterator;
@@ -52,6 +57,7 @@ class Graph{
             components = NULL;
             iterator = NULL;
             this->weighted = weighted;
+            has_negative_weight = false;
         }
 
         virtual ~Graph(){
@@ -352,8 +358,20 @@ class Graph{
             return diameter;
         }
 
-        // Verificar se existem arestas de custo < 0
+        float get_distance(int a, int b){
+            if(weighted){
+                dijkstra(a, "void");
+            }else{
+                generate_bfs_tree(a, "void");
+            }
+
+            return latest_search_depth[b-1];
+        }
+
         void dijkstra(int root, string filename="dijkstra.txt"){
+            if(has_negative_weight){
+                throw invalid_argument("Dijkstra algorythm cannot handle negative weights.");
+            }
             reset_search();
             int *parent = latest_search_parent;
             float *depth = latest_search_depth;
@@ -406,13 +424,14 @@ class Graph{
             delete q;
         }
         
-        void mst(int root, string filename="mst.txt"){
+        float mst(int root, string filename="mst.txt"){
             reset_search();
             int *parent = latest_search_parent;
             float *depth = latest_search_depth;
             int u, v;
             float v_distance;
             heap_node *stub;
+            float total_weight = 0;
 
             float infinite = numeric_limits<float>::max();
             Priority_Queue *q = new Priority_Queue(size);
@@ -435,6 +454,7 @@ class Graph{
                     
                 v = stub->id;
                 depth[v-1] = stub->weight;
+                total_weight += stub->weight;
                 
                 iterate_neighbors(v);
                 for(u=iterator->begin(); u<=iterator->end(); u=iterator->next()){
@@ -455,6 +475,8 @@ class Graph{
             }
             
             delete q;
+
+            return total_weight;
         }
 };
 
@@ -537,7 +559,7 @@ class AdjacencyMatrixGraph: public Graph{
         }
 
         void add_edge(int head, int tail, float weight = 1){
-            Graph::add_edge(head, tail);
+            Graph::add_edge(head, tail, weight);
             neighbors[head-1][tail-1] = weight;
             neighbors[tail-1][head-1] = weight;
         }
@@ -625,7 +647,7 @@ class AdjacencyListGraph: public Graph{
             iterator = new neighborsIter(this, vertex, reverse);
         }
         void add_edge(int head, int tail, float weight = 1){
-            Graph::add_edge(head, tail);
+            Graph::add_edge(head, tail, weight);
             neighbors[head-1].push_ordered(tail, weight);
             neighbors[tail-1].push_ordered(head, weight);
         }

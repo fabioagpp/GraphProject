@@ -131,7 +131,7 @@ int main(){
         mst_weight = g->get_average_distance();
         end_time = clock();
         elapsed_time = double(end_time - begin_time) / CLOCKS_PER_SEC;
-        log_print("MST Weight: " + to_string(mst_weight));
+        log_print("Average Distance: " + to_string(mst_weight));
         log_print("Total Elapsed Time: " + to_string(elapsed_time) + "s");
 
         log_print("");

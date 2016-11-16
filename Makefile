@@ -1,7 +1,7 @@
 FLAGS="-std=c++11"
 DOWNLOAD_PATH="src/graphs/"
 study_case:
-	g++ $(FLAGS) case_study.cpp
+	g++ $(FLAGS) src/case_study.cpp
 	./a.out || true
 	rm a.out
 test_bench:
@@ -30,3 +30,5 @@ clean:
 	rm dfs.txt || true
 	rm graph_info.txt || true
 	rm cc.txt || true
+	rm dijkstra.txt || true
+	rm mst.txt || true

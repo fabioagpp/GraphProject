@@ -163,13 +163,11 @@ class Graph{
 
         void generate_bfs_tree(int root, string filename="bfs.txt"){
             reset_search();
-            int *parent = latest_search_parent;
-            float *depth = latest_search_depth;
             int u, v;
             Linked_List *l = new Linked_List;
 
-            parent[root-1] = 0;
-            depth[root-1] = 0;
+            latest_search_parent[root-1] = 0;
+            latest_search_depth[root-1] = 0;
             l->push(root);
 
             while(l->head != NULL){
@@ -177,9 +175,9 @@ class Graph{
                 
                 iterate_neighbors(v);
                 for(u=iterator->begin(); u<=iterator->end(); u=iterator->next()){
-                    if(parent[u-1] == -1){
-                        parent[u-1] = v;
-                        depth[u-1] = depth[v-1] + 1;
+                    if(latest_search_parent[u-1] == -1){
+                        latest_search_parent[u-1] = v;
+                        latest_search_depth[u-1] = latest_search_depth[v-1] + 1;
                         l->push_back(u);
                     }
                 }
@@ -448,15 +446,21 @@ class Graph{
             bool ended = false;
             while(not ended){
                 stub = q->pop();
-                if(stub == NULL || stub->weight == infinite){
+                if(stub == NULL){
                     ended = true;
                     break;
                 }
                     
                 v = stub->id;
-                depth[v-1] = stub->weight;
-                total_weight += stub->weight;
-                
+                if(stub->weight == infinite){
+                    parent[v-1] = 0;
+                    depth[v-1] = 0;
+                    total_weight += 0;
+                }else{
+                    depth[v-1] = stub->weight;
+                    total_weight += stub->weight;
+                }
+                                
                 iterate_neighbors(v);
                 for(u=iterator->begin(); u<=iterator->end(); u=iterator->next()){
                     if(depth[u-1] > -1){

@@ -62,7 +62,6 @@ int main(){
     vector<int> test_vertices = {10, 20, 30, 40, 50};
     vector<float> *distances;
     vector<int> path;
-    vector<vector<int>> *paths;
     Graph *g; 
     float mst_weight;
     output.open("study_case_out.txt");
@@ -72,6 +71,8 @@ int main(){
     string path_string;
     vector<string> samples= {"grafo_1.txt", "grafo_2.txt", "grafo_3.txt",
             "grafo_4.txt", "grafo_5.txt"};
+
+    float path_distance;
 
     for(int j = 0; j < 5; j++){
         filename = file_path + samples[j];
@@ -85,33 +86,32 @@ int main(){
         g = new AdjacencyListGraph(true);
         g->read_file(filename);
         distances = new vector<float>;
-        paths = new vector<vector<int>>;
         
         log_print("-----------------");
         log_print("Question 1.1");
         log_print("-----------------");
-        begin_time = clock();
         for(vector<int>::iterator vertex = test_vertices.begin();
                             vertex != test_vertices.end(); vertex++){
-            distances->push_back(g->get_distance(*vertex, 1));
-            paths->push_back(get_path(g, *vertex, 1));
-        }
-        end_time = clock();
-        elapsed_time = double(end_time - begin_time) / CLOCKS_PER_SEC;
-        for(int i = 0; i < test_vertices.size(); i++){
-            log_print("Distance from " + to_string(test_vertices[i]) +
-                        " to 1: " + to_string(distances->at(i)));
+            begin_time = clock();
+            path_distance = g->get_distance(*vertex, 1);
+            path = get_path(g, *vertex, 1);
+            end_time = clock();
+            elapsed_time = double(end_time - begin_time) / CLOCKS_PER_SEC;
+            log_print("Distance from " + to_string(*vertex) +
+                        " to 1: " + to_string(path_distance));
             path_string = "Path: ";
-            path = paths->at(i);
 
             for(int j = 0; j < path.size(); j++){
                 path_string += to_string(path[j]) + ", ";
             }
 
             log_print(path_string);
-            
+            log_print("Elapsed Time: " + to_string(elapsed_time) + "s");
+
         }
-        log_print("Total Elapsed Time: " + to_string(elapsed_time) + "s");
+        for(int i = 0; i < test_vertices.size(); i++){
+                        
+        }
         delete distances;
 
         log_print("-----------------");
@@ -123,7 +123,8 @@ int main(){
         elapsed_time = double(end_time - begin_time) / CLOCKS_PER_SEC;
         log_print("MST Weight: " + to_string(mst_weight));
         log_print("Total Elapsed Time: " + to_string(elapsed_time) + "s");
-       
+
+/*
         log_print("-----------------");
         log_print("Question 1.3");
         log_print("-----------------");
@@ -138,6 +139,7 @@ int main(){
         log_print("");
 
         delete g;
+*/
     }
 
     map<string, int> name_index;

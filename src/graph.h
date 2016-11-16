@@ -368,7 +368,7 @@ class Graph{
 
         void dijkstra(int root, string filename="dijkstra.txt"){
             if(has_negative_weight){
-                throw invalid_argument("Dijkstra algorythm cannot handle negative weights.");
+                throw invalid_argument("Dijkstra's algorythm cannot handle negative weights.");
             }
             reset_search();
             int *parent = latest_search_parent;
@@ -424,6 +424,9 @@ class Graph{
         }
         
         float mst(int root=1, string filename="mst.txt"){
+            if(has_negative_weight){
+                throw invalid_argument("Prim's algorythm cannot handle negative weights.");
+            }
             reset_search();
             int *parent = latest_search_parent;
             float *depth = latest_search_depth;

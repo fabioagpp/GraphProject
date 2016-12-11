@@ -16,13 +16,14 @@ test:
 
 download_graphs:
 	rm $(DOWNLOAD_PATH)* || true
-	wget -P $(DOWNLOAD_PATH) http://www.land.ufrj.br/~daniel/grafos/data/grafo_1.txt
-	wget -P $(DOWNLOAD_PATH) http://www.land.ufrj.br/~daniel/grafos/data/grafo_2.txt
-	wget -P $(DOWNLOAD_PATH) http://www.land.ufrj.br/~daniel/grafos/data/grafo_3.txt
-	wget -P $(DOWNLOAD_PATH) http://www.land.ufrj.br/~daniel/grafos/data/grafo_4.txt
-	wget -P $(DOWNLOAD_PATH) http://www.land.ufrj.br/~daniel/grafos/data/grafo_5.txt
-	wget -P $(DOWNLOAD_PATH) http://www.land.ufrj.br/~daniel/grafos/data/rede_colaboracao.txt
-	wget -P $(DOWNLOAD_PATH) http://www.land.ufrj.br/~daniel/grafos/data/rede_colaboracao_vertices.txt
+	for i in 5 10 20 50 100 200 500 1000 2000 5000 7500 10000 ; do \
+		wget -P $(DOWNLOAD_PATH) http://www.land.ufrj.br/~daniel/grafos/data/points-$$i.txt; \
+	done
+
+convert_graphs:
+	g++ $(FLAGS) src/graph_converter.cpp
+	find src/graphs/ -name "*[0-9]\.txt" -exec ./a.out {} \;
+	rm a.out
 	
 clean:
 	rm a.out || true

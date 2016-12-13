@@ -1,30 +1,34 @@
 #include <iostream>
-#include "graph.h"
+#include <vector>
+#include "src/graph.h"
 
 using namespace std;
 
 int main(){
-    /*Linked_List l;
-    l.append_ordered(2);
-    l.append_ordered(3);
-    l.append_ordered(1);
-
-    l.print();*/
-    Graph *g = new AdjacencyListGraph;
-    g->read_file("test.txt");
-    g->generate_info();
-    g->generate_dfs_tree(1);
-    cout << "DFS" << endl;
-    for(int i = 1; i <= 9; i ++){
-        cout << "The parent of " << i << " is ";
-        cout << g->latest_search_parent[i-1] << endl;
+    Graph *g = new AdjacencyListGraph(true);
+    vector<string> sizes;
+    sizes.push_back("5");
+    sizes.push_back("10");
+    sizes.push_back("20");
+    sizes.push_back("50");
+    sizes.push_back("100");
+    sizes.push_back("200");
+    sizes.push_back("500");
+/*    sizes.push_back("1000");
+    sizes.push_back("2000");
+    sizes.push_back("5000");
+    sizes.push_back("7500");
+    sizes.push_back("10000");
+*/
+    string filename;
+    string output;
+    for(int i = 0; i < sizes.size(); i++){
+        filename = "src/graphs/points-" + sizes.at(i) + "-converted.txt";
+        cout << filename << "...";
+        g->read_file(filename);
+        output = "point-" + sizes.at(i) + ".txt";
+        g->tsp(1, output);
+        cout << "Complete" << endl;
     }
-    g->generate_bfs_tree(1);
-    cout << "DFS" << endl;
-    for(int i = 1; i <= 9; i ++){
-        cout << "The parent of " << i << " is ";
-        cout << g->latest_search_parent[i-1] << endl;
-    }
-    g->generate_connected_components();
     return 0;
 }

@@ -124,4 +124,17 @@ class Linked_List{
                 tail = l->previous;
             delete l;
         }
+
+        float get(int vertex){
+            list_node *l = head;
+            while(l != NULL and l->edge != vertex){
+                l = l->next;
+            }
+
+            if(l == NULL){
+                return 0;
+            }
+
+            return l->weight;
+        }
 };

@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <limits>
 #include <queue>
+#include <ctime>
 #include "linked_list.h"
 #include "priority_queue.h"
 
@@ -47,6 +48,7 @@ class Graph{
                 has_negative_weight = true;
             }
         };
+        virtual float get_weight(int v1, int v2) = 0;
 
         neighborsIter *iterator;
 
@@ -504,6 +506,161 @@ class Graph{
             return average_distance/valid_pairs;
         }
 
+        float tsp(int root=1, string filename="tsp.txt", double max_time=3600){
+            clock_t begin_time, end_time;
+            double elapsed_time;
+            reset_search();
+            int *next = latest_search_parent;
+            float infinite = numeric_limits<float>::max();
+            bool visited[size] = {false};
+            int u, v;
+            int min_neighbor;
+            float min_neighbor_weight;
+            v = root;
+            visited[v] = true;
+            float total_weight = 0;
+            begin_time = clock();
+            // Greedy heuristic that always selects the closest unvisited neighbor
+            for(int i = 0; i < size - 1; i++){
+                iterate_neighbors(v);
+                min_neighbor_weight = infinite;
+
+                for(u=iterator->begin(); u<=iterator->end(); u=iterator->next()){
+                    if(!visited[u] and iterator->get_weight() < min_neighbor_weight){
+                        min_neighbor = u;
+                        min_neighbor_weight = iterator->get_weight();
+                    }
+                }
+                next[v-1] = min_neighbor;
+
+                visited[min_neighbor] = true;
+                v = min_neighbor;
+                total_weight += min_neighbor_weight;
+
+            }
+                    
+            next[v-1] = root;
+            total_weight += get_weight(v, root);
+
+            // Just a log, you can ignore it
+            if(filename != "void"){
+                ofstream output(filename.c_str());
+                output << "Unoptimized Total weight: " << total_weight << endl;
+                output << "Unoptimized Path:" << endl;
+
+                v = root;
+                output << root;
+
+                for(int i = 0; i < size; i++){
+                    v = next[v-1];
+                    output << " " << v;
+                    
+                }
+                output << endl;
+                output.close();
+            }
+
+            // Define elapsed time to avoid errors
+            end_time = clock();
+            elapsed_time = double(end_time - begin_time)/CLOCKS_PER_SEC;
+
+            // Optimization part
+            while(elapsed_time < max_time and optimize(root)){
+                next = latest_search_parent;
+                end_time = clock();
+                elapsed_time = double(end_time - begin_time)/CLOCKS_PER_SEC;
+            }
+
+            // Determine new weight after optimization
+            v = root;
+            total_weight = 0;
+            while(next[v-1] != root){
+                total_weight += get_weight(v, next[v-1]);
+                v = next[v-1];
+            }
+            total_weight += get_weight(v, next[v-1]);
+            
+            // Just a log, you can ignore it
+            if(filename != "void"){
+                ofstream output(filename.c_str(), std::ofstream::app);
+                output << "Optimized Total weight: " << total_weight << endl;
+                output << "Optimized Path:" << endl;
+
+                v = root;
+                output << root;
+
+                for(int i = 0; i < size; i++){
+                    v = next[v-1];
+                    output << " " << v;
+                    
+                }
+                output << endl;
+                output.close();
+            }
+
+            return total_weight;
+        }
+
+        bool optimize(int root){
+            bool changed = false;
+            int *next = latest_search_parent;
+
+            int *new_next = new int[size];
+            int v1 = root;
+            int v2;
+            int v;
+
+            float dist1, dist2;
+            // Finds a "crossing path"            
+            while(next[v1-1] != root and !changed){
+                v2 = next[next[v1-1]-1];
+                while(v2 != root and !changed){
+                    dist1 = get_weight(v1, next[v1-1]) + get_weight(v2, next[v2-1]);
+                    dist2 = get_weight(v1, v2) + get_weight(next[v1-1], next[v2-1]);
+                    // Uncrosses it
+                    if(dist1 > dist2){
+                        v = root;
+                        // Copy first part of the path
+                        while(v != v1){
+                            new_next[v-1] = next[v-1];
+                            v = next[v-1];
+                        }
+                        
+                        new_next[v1-1] = v2;
+                        v = next[v-1];
+                        // Reverse the second part of the path
+                        while(v != v2){
+                            new_next[next[v-1]-1] = v;
+                            v = next[v-1];
+                        }
+
+                        v = next[v2-1];
+                        // Copy last part of the path
+                        while(v != root){
+                            new_next[v-1] = next[v-1];
+                            v = next[v-1];
+                        }
+
+                        new_next[next[v1-1]-1] = next[v2-1];
+                        latest_search_parent = new_next;
+                        
+                        changed = true;
+                    }
+                    v2 = next[v2-1];
+                }
+                v1 = next[v1-1];
+            }
+
+            if(changed){
+                delete next;
+            }else{
+                delete new_next;
+            }
+
+            return changed;
+
+        }
+
 };
 
 class AdjacencyMatrixGraph: public Graph{
@@ -519,13 +676,13 @@ class AdjacencyMatrixGraph: public Graph{
                     this->vertex = vertex;
                     this->outer = outer;
                     int i = 0;
-                    while(i < outer->size and outer->neighbors[vertex-1][i] != true){
+                    while(i < outer->size and outer->neighbors[vertex-1][i] == 0){
                         i++;
                     }
                     first = i + 1;
 
                     i = outer->size - 1;
-                    while(i >= 0 and outer->neighbors[vertex-1][i] != true){
+                    while(i >= 0 and outer->neighbors[vertex-1][i] == 0){
                         i--;
                     }
                     last = i + 1;
@@ -599,6 +756,11 @@ class AdjacencyMatrixGraph: public Graph{
                 delete iterator;
             }
             iterator = new neighborsIter(this, vertex, reverse);
+        }
+
+        float get_weight(int v1, int v2){
+            return neighbors[v1-1][v2-1];
+
         }
 
         AdjacencyMatrixGraph(bool weighted = false) : Graph(weighted){
@@ -684,6 +846,10 @@ class AdjacencyListGraph: public Graph{
         void set_graph_size(int size){
             Graph::set_graph_size(size);
             neighbors = new Linked_List[size];
+        }
+
+        float get_weight(int v1, int v2){
+            return neighbors[v1-1].get(v2);
         }
 
         AdjacencyListGraph(bool weighted = false) : Graph(weighted){

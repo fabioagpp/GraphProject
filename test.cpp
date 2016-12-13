@@ -5,7 +5,7 @@
 using namespace std;
 
 int main(){
-    Graph *g = new AdjacencyListGraph(true);
+    Graph *g = new AdjacencyMatrixGraph(true);
     vector<string> sizes;
     sizes.push_back("5");
     sizes.push_back("10");

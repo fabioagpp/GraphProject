@@ -56,7 +56,7 @@ int main(){
         g->read_file(filename);
         
         begin_time = clock();
-        path_weight = g->tsp(1, "void", 3600);
+        path_weight = g->tsp(1, "void", 10800);
         end_time = clock();
         elapsed_time = double(end_time - begin_time) / CLOCKS_PER_SEC;
         log_print("Run time: " + to_string(elapsed_time));
